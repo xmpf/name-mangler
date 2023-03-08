@@ -42,7 +42,6 @@ def lastf(first="john", last="doe"):
 def main(args):
     names = []
     results = []
-    outfile = args.output
 
     fn_handlers = {
         # firstname
@@ -68,26 +67,27 @@ def main(args):
     if names == []:
         print("[-] No names loaded")
         exit(1)
-    
-    if args.output == None:
-        outfile = '/dev/stdout'
 
-    for name in names:
+    for ix, name in enumerate(names, 1):
         _name = name.lower()
         _name = _name.split(' ')
         
         if len(_name) != 2:
-            sys.stderr.write(f'[-] Wrong format "{name}" (SKIPPED)\n')
+            sys.stderr.write(f'[-] Wrong format "{name}" at line:{ix} (SKIPPED).\n')
             continue
         
         first, last = _name
 
         for fmt in args.format:
-            r = fn_handlers.get(fmt)(first, last)
+            fn = fn_handlers.get(fmt)
+            if fn == None:
+                sys.stderr.write('[-] Should not be reachable (SKIPPED).\n')
+                continue
+            r = fn(first, last)
             results.append(r)
         results.append('')
 
-    with open(outfile, 'w') as f:
+    with open(args.output, 'w') as f:
         f.write( f'{args.suffix}\n'.join(results) )
         f.flush()
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-o',
         '--output',
-        default = None,
+        default = '/dev/stdout',
         required = False,
         help = 'Output file'
     )
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--format',
-        default = 'john.doe',
+        default = ['john.doe'],
         choices = ['john.doe','j.doe','johndoe','jdoe','john.d','johnd','doe.john','d.john','doejohn','djohn','doe.j','doej'],
         required = False,
         nargs = '*',
