@@ -85,7 +85,7 @@ def main(args):
                 continue
             r = fn(first, last)
             results.append(r)
-        results.append('')
+    results.append('')
 
     with open(args.output, 'w') as f:
         f.write( f'{args.suffix}\n'.join(results) )
