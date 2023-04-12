@@ -39,31 +39,28 @@ def last_f(first="john", last="doe"):
 def lastf(first="john", last="doe"):
     return f"{last}{first[0]}"
 
+fn_handlers = {
+    'john.doe': first_last,
+    'j.doe': f_last,
+    'johndoe': firstlast,
+    'jdoe': flast,
+    'john.d': first_l,
+    'johnd': firstl,
+    'doe.john': last_first,
+    'd.john': l_first,
+    'doejohn': lastfirst,
+    'djohn': lfirst,
+    'doe.j': last_f,
+    'doej': lastf,
+}
+
 def main(args):
     names = []
     results = []
 
-    fn_handlers = {
-        # firstname
-        'john.doe': first_last,
-        'j.doe': f_last,
-        'johndoe': firstlast,
-        'jdoe': flast,
-        'john.d': first_l,
-        'johnd': firstl,
-
-        # lastname
-        'doe.john': last_first,
-        'd.john': l_first,
-        'doejohn': lastfirst,
-        'djohn': lfirst,
-        'doe.j': last_f,
-        'doej': lastf,
-    }
-
     with open(args.file, 'r') as f:
         names = [line.strip() for line in f.readlines()]
-    
+
     if names == []:
         print("[-] No names loaded")
         exit(1)
@@ -71,11 +68,11 @@ def main(args):
     for ix, name in enumerate(names, 1):
         _name = name.lower()
         _name = _name.split(' ')
-        
+
         if len(_name) != 2:
             sys.stderr.write(f'[-] Wrong format "{name}" at line:{ix} (SKIPPED).\n')
             continue
-        
+
         first, last = _name
 
         for fmt in args.format:
@@ -92,6 +89,8 @@ def main(args):
         f.flush()
 
 if __name__ == '__main__':
+
+    available_formats = fn_handlers.keys() 
 
     parser = argparse.ArgumentParser(
         prog = 'name-mangler',
@@ -117,7 +116,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--format',
         default = ['john.doe'],
-        choices = ['john.doe','j.doe','johndoe','jdoe','john.d','johnd','doe.john','d.john','doejohn','djohn','doe.j','doej'],
+        choices = available_formats,
         required = False,
         nargs = '*',
         help = 'Format of the generated output'
@@ -142,6 +141,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.all_formats:
-        args.format = ['john.doe','j.doe','johndoe','jdoe','john.d','johnd','doe.john','d.john','doejohn','djohn','doe.j','doej']
+        args.format = available_formats 
 
     main(args)
+
